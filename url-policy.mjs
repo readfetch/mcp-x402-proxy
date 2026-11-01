@@ -2,6 +2,8 @@
  * Upstream URL and tool-name policy (shared by index.mjs and test-static.mjs).
  */
 
+import { BY_NAME, endpointPath } from "./endpoints.mjs";
+
 export const TOOL_NAME_RE = /^readfetch_[a-z0-9_]+$/;
 export const ALLOWED_RPC_METHODS = new Set(["tools/list"]);
 
@@ -88,19 +90,49 @@ export function validateToolName(name) {
   }
 }
 
-/** Catalog MCP tool → REST path (`readfetch_text` → `/v1/text`). */
-export function restPathForTool(toolName) {
+/** MCP tool name → catalog endpoint name (`readfetch_text` → `text`). */
+export function catalogNameFromTool(toolName) {
   validateToolName(toolName);
-  const path = `/v1/${toolName.slice("readfetch_".length)}`;
-  if (!/^\/v1\/[a-z0-9_]+$/.test(path)) {
-    throw new Error("invalid REST path for tool");
-  }
-  return path;
+  return toolName.slice("readfetch_".length);
 }
 
-/** Same origin as MCP upstream; path constrained to catalog `/v1/{name}`. */
-export function restUrlForTool(upstreamOrigin, toolName) {
-  const path = restPathForTool(toolName);
+/** @param {string} toolName */
+export function endpointSpecForTool(toolName) {
+  const name = catalogNameFromTool(toolName);
+  const spec = BY_NAME.get(name);
+  if (!spec) {
+    throw new Error(`unknown readfetch tool \`${toolName}\``);
+  }
+  return spec;
+}
+
+/**
+ * Path params for templated routes (`readfetch_crawl_status` needs `id` in arguments).
+ * @param {string} toolName
+ * @param {Record<string, unknown>} args
+ */
+export function pathParamsForTool(toolName, args) {
+  const name = catalogNameFromTool(toolName);
+  if (name !== "crawl_status") {
+    return {};
+  }
+  const id = args?.id;
+  if (id === undefined || id === null) {
+    throw new Error("readfetch_crawl_status requires arguments.id");
+  }
+  return { id: String(id) };
+}
+
+/** Catalog REST path for a tool (respects `{id}` templates). */
+export function restPathForTool(toolName, args = {}) {
+  const name = catalogNameFromTool(toolName);
+  const params = pathParamsForTool(toolName, args);
+  return endpointPath(name, params);
+}
+
+/** Same origin as MCP upstream; path from catalog (not naive `/v1/{suffix}`). */
+export function restUrlForTool(upstreamOrigin, toolName, args = {}) {
+  const path = restPathForTool(toolName, args);
   const base = new URL(upstreamOrigin);
   const url = new URL(path, base.origin);
   if (url.origin !== base.origin) {

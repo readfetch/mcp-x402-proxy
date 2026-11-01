@@ -1,6 +1,6 @@
 {
   "name": "@readfetch/mcp-x402-proxy",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "mcpName": "io.github.readfetch/mcp-x402-proxy",
   "description": "Stdio MCP server: tools/list via /mcp, paid tools/call via REST + x402",
   "type": "module",
@@ -14,6 +14,7 @@
   "files": [
     "index.mjs",
     "url-policy.mjs",
+    "endpoints.mjs",
     "README.md",
     "LICENSE"
   ],
@@ -25,8 +26,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "node --check index.mjs && node --check url-policy.mjs && node test-static.mjs",
-    "test": "node test-static.mjs",
+    "build": "node --check index.mjs && node --check url-policy.mjs && node --check endpoints.mjs && node test-static.mjs && node test-catalog-sync.mjs",
+    "test": "node test-static.mjs && node test-catalog-sync.mjs",
     "smoke": "node smoke-mcp.mjs",
     "prepublishOnly": "npm run build"
   },

@@ -3,7 +3,7 @@
  * Stdio MCP → readfetch.com/mcp with automatic x402 payment on 402.
  *
  * Env:
- *   EVM_PRIVATE_KEY or X402_BUYER_KEY — hex key with USDC on Base (required before first paid tools/call)
+ *   EVM_PRIVATE_KEY or X402_BUYER_KEY — hex key with USDC on Base (required before first **paid** tools/call)
  *   READFETCH_MCP_URL — default https://readfetch.com/mcp (https, path /mcp, readfetch.com / www only, or localhost with READFETCH_DEV=1)
  *   READFETCH_MAX_PAYMENT_USD — spend cap per authorization, 0–100 (default 1)
  *   READFETCH_EXPECTED_PAYTO — optional; default readfetch catalog payee when upstream is production readfetch.com
@@ -29,6 +29,7 @@ import {
   filterCatalogTools,
   isDevHost,
   resolveUpstreamUrl,
+  endpointSpecForTool,
   restUrlForTool,
   sanitizeErrorMessage,
   validateToolName,
@@ -318,26 +319,30 @@ async function upstream(method, params) {
 }
 
 async function upstreamRestTool(toolName, args) {
-  const paid = await ensurePaidFetch();
-  const restUrl = restUrlForTool(new URL(upstreamUrl).origin, toolName);
+  const spec = endpointSpecForTool(toolName);
+  const origin = new URL(upstreamUrl).origin;
+  const restUrl = restUrlForTool(origin, toolName, args);
+  const http = spec.free ? fetchNoRedirect : await ensurePaidFetch();
 
-  const body = JSON.stringify(args);
-  if (Buffer.byteLength(body, "utf8") > MAX_RPC_REQUEST_BYTES) {
-    throw new Error(
-      `tool request too large (max ${MAX_RPC_REQUEST_BYTES} bytes)`,
-    );
-  }
-
-  const response = await paid(restUrl, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      accept: "application/json",
-    },
-    body,
+  /** @type {RequestInit} */
+  const init = {
+    method: spec.method,
+    headers: { accept: "application/json" },
     redirect: "manual",
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-  });
+  };
+  if (spec.method !== "GET") {
+    const body = JSON.stringify(args);
+    if (Buffer.byteLength(body, "utf8") > MAX_RPC_REQUEST_BYTES) {
+      throw new Error(
+        `tool request too large (max ${MAX_RPC_REQUEST_BYTES} bytes)`,
+      );
+    }
+    init.headers["content-type"] = "application/json";
+    init.body = body;
+  }
+
+  const response = await http(restUrl, init);
 
   assertNoRedirect(response, restUrl);
 
@@ -357,7 +362,8 @@ async function upstreamRestTool(toolName, args) {
     );
   }
 
-  const isError = response.status >= 400;
+  const okStatuses = spec.accept?.length ? spec.accept : [200];
+  const isError = !okStatuses.includes(response.status);
   const meta = {};
   const receipt = response.headers.get("RECEIPT");
   if (receipt) {

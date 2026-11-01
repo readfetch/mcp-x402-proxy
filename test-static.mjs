@@ -10,6 +10,7 @@ import {
   resolveUpstreamUrl,
   restPathForTool,
   restUrlForTool,
+  endpointSpecForTool,
   sanitizeErrorMessage,
   validateToolName,
 } from "./url-policy.mjs";
@@ -70,8 +71,15 @@ assert.equal(
 
 assert.equal(restPathForTool("readfetch_text"), "/v1/text");
 assert.equal(
+  restPathForTool("readfetch_crawl_status", { id: "job_ab12" }),
+  "/v1/crawl/job_ab12",
+);
+assert.equal(
   restUrlForTool("https://readfetch.com/mcp", "readfetch_text"),
   "https://readfetch.com/v1/text",
 );
+assert.throws(() => restPathForTool("readfetch_crawl_status", {}));
+assert.equal(endpointSpecForTool("readfetch_probe").free, true);
+assert.equal(endpointSpecForTool("readfetch_text").free, false);
 
 console.log("test-static.mjs: ok");

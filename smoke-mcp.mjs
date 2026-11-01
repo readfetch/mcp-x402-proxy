@@ -13,7 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { TOOL_NAME_RE, validateToolName } from "./url-policy.mjs";
+import { TOOL_NAME_RE, endpointSpecForTool, validateToolName } from "./url-policy.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SMOKE_URL = process.env.SMOKE_PROBE_URL?.trim() || "https://example.com/";
@@ -35,13 +35,14 @@ function loadBuyerKey() {
 
 validateToolName(SMOKE_TOOL);
 
-const key = loadBuyerKey();
+const needsKey = !endpointSpecForTool(SMOKE_TOOL).free;
+const key = needsKey ? loadBuyerKey() : "";
 const transport = new StdioClientTransport({
   command: process.execPath,
   args: [join(__dirname, "index.mjs")],
   cwd: __dirname,
   env: {
-    EVM_PRIVATE_KEY: key,
+    ...(needsKey ? { EVM_PRIVATE_KEY: key } : {}),
     READFETCH_MCP_URL:
       process.env.READFETCH_MCP_URL?.trim() || "https://readfetch.com/mcp",
   },
