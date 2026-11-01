@@ -1,0 +1,51 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.readfetch/mcp-x402-proxy",
+  "title": "readfetch",
+  "description": "Stdio MCP: free probe; paid web reading (text/map/scrape) via x402 on readfetch.com",
+  "repository": {
+    "url": "https://github.com/readfetch/mcp-x402-proxy",
+    "source": "github"
+  },
+  "version": "0.1.12",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@readfetch/mcp-x402-proxy",
+      "version": "0.1.12",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "EVM_PRIVATE_KEY",
+          "description": "Base mainnet wallet for paid tools; omit for readfetch_probe and tools/list only",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "READFETCH_MAX_PAYMENT_USD",
+          "description": "Maximum USD per x402 authorization (default 1, max 100)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "READFETCH_MCP_URL",
+          "description": "Upstream MCP URL for tools/list (default https://readfetch.com/mcp)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "READFETCH_DEV",
+          "description": "Set to 1 for localhost/Sepolia dev only; never with production READFETCH_MCP_URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

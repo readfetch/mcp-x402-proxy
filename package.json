@@ -1,0 +1,39 @@
+{
+  "name": "@readfetch/mcp-x402-proxy",
+  "version": "0.1.12",
+  "mcpName": "io.github.readfetch/mcp-x402-proxy",
+  "description": "Stdio MCP server: tools/list via /mcp, paid tools/call via REST + x402",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/readfetch/mcp-x402-proxy.git"
+  },
+  "bin": {
+    "readfetch-mcp-x402": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "url-policy.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "node --check index.mjs && node --check url-policy.mjs && node test-static.mjs",
+    "test": "node test-static.mjs",
+    "smoke": "node smoke-mcp.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@x402/evm": "2.29.0",
+    "@x402/fetch": "2.29.0",
+    "viem": "2.57.13"
+  }
+}
