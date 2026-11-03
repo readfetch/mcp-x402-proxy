@@ -7,12 +7,12 @@
     "url": "https://github.com/readfetch/mcp-x402-proxy",
     "source": "github"
   },
-  "version": "0.1.13",
+  "version": "0.1.14",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@readfetch/mcp-x402-proxy",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "transport": {
         "type": "stdio"
       },
