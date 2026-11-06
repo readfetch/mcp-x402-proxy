@@ -2,6 +2,7 @@
  * Static checks for URL policy (no network, no keys). Run: node test-static.mjs
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   TOOL_NAME_RE,
   filterCatalogTools,
@@ -81,5 +82,9 @@ assert.equal(
 assert.throws(() => restPathForTool("readfetch_crawl_status", {}));
 assert.equal(endpointSpecForTool("readfetch_probe").free, true);
 assert.equal(endpointSpecForTool("readfetch_text").free, false);
+
+const proxy = readFileSync(new URL("./index.mjs", import.meta.url), "utf8");
+assert.match(proxy, /instructions: INSTRUCTIONS/);
+assert.match(proxy, /readfetch-mcp-x402-proxy\/\$\{PACKAGE_VERSION\}/);
 
 console.log("test-static.mjs: ok");

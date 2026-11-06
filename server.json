@@ -2,17 +2,17 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.readfetch/mcp-x402-proxy",
   "title": "readfetch",
-  "description": "Stdio MCP: free probe; paid web reading (text/map/scrape) via x402 on readfetch.com",
+  "description": "Stdio MCP signing proxy: free probe, then paid web reading via x402 on readfetch.com. Standard remote MCP hosts need this proxy for paid tools.",
   "repository": {
     "url": "https://github.com/readfetch/mcp-x402-proxy",
     "source": "github"
   },
-  "version": "0.1.14",
+  "version": "0.1.15",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@readfetch/mcp-x402-proxy",
-      "version": "0.1.14",
+      "version": "0.1.15",
       "transport": {
         "type": "stdio"
       },

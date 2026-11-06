@@ -1,6 +1,6 @@
 {
   "name": "@readfetch/mcp-x402-proxy",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "mcpName": "io.github.readfetch/mcp-x402-proxy",
   "description": "Stdio MCP server: tools/list via /mcp, paid tools/call via REST + x402",
   "type": "module",

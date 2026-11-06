@@ -49,6 +49,8 @@ const DEFAULT_PAYTO = "0x26C2308aDC8fe5FFE6d4183588DD2DD22ed86071";
 const MISSING_KEY =
   "readfetch MCP: set EVM_PRIVATE_KEY (or X402_BUYER_KEY) in the MCP server env — a Base wallet with USDC. " +
   "The proxy signs x402 payments on your behalf when a tool call returns 402.";
+const INSTRUCTIONS =
+  "Start with readfetch_probe (free). Paid tools use a local signing proxy: add EVM_PRIVATE_KEY for a dedicated, funded Base USDC wallet. The proxy pays the REST 402 and retries automatically; do not point a standard MCP host at readfetch.com/mcp alone for paid tools.";
 
 function assertNoRedirect(response, expectedUrl) {
   if (response.status >= 300 && response.status < 400) {
@@ -276,6 +278,7 @@ async function upstream(method, params) {
     headers: {
       "content-type": "application/json",
       accept: ACCEPT,
+      "user-agent": `readfetch-mcp-x402-proxy/${PACKAGE_VERSION}`,
     },
     body,
     redirect: "manual",
@@ -327,7 +330,10 @@ async function upstreamRestTool(toolName, args) {
   /** @type {RequestInit} */
   const init = {
     method: spec.method,
-    headers: { accept: "application/json" },
+    headers: {
+      accept: "application/json",
+      "user-agent": `readfetch-mcp-x402-proxy/${PACKAGE_VERSION}`,
+    },
     redirect: "manual",
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   };
@@ -386,7 +392,7 @@ async function upstreamRestTool(toolName, args) {
 
 const server = new Server(
   { name: "readfetch-x402", version: PACKAGE_VERSION },
-  { capabilities: { tools: {} } },
+  { capabilities: { tools: {} }, instructions: INSTRUCTIONS },
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
