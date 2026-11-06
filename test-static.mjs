@@ -86,5 +86,9 @@ assert.equal(endpointSpecForTool("readfetch_text").free, false);
 const proxy = readFileSync(new URL("./index.mjs", import.meta.url), "utf8");
 assert.match(proxy, /instructions: INSTRUCTIONS/);
 assert.match(proxy, /readfetch-mcp-x402-proxy\/\$\{PACKAGE_VERSION\}/);
+assert.match(proxy, /async function upstreamRestTool\(toolName, args\) \{\n  resolveUpstreamContext\(\)/);
+
+const smoke = readFileSync(new URL("./smoke-mcp.mjs", import.meta.url), "utf8");
+assert.match(smoke, /READFETCH_MAX_PAYMENT_USD/);
 
 console.log("test-static.mjs: ok");

@@ -322,6 +322,7 @@ async function upstream(method, params) {
 }
 
 async function upstreamRestTool(toolName, args) {
+  resolveUpstreamContext();
   const spec = endpointSpecForTool(toolName);
   const origin = new URL(upstreamUrl).origin;
   const restUrl = restUrlForTool(origin, toolName, args);

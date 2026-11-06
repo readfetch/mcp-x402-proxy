@@ -43,6 +43,9 @@ const transport = new StdioClientTransport({
   cwd: __dirname,
   env: {
     ...(needsKey ? { EVM_PRIVATE_KEY: key } : {}),
+    ...(process.env.READFETCH_MAX_PAYMENT_USD?.trim()
+      ? { READFETCH_MAX_PAYMENT_USD: process.env.READFETCH_MAX_PAYMENT_USD.trim() }
+      : {}),
     READFETCH_MCP_URL:
       process.env.READFETCH_MCP_URL?.trim() || "https://readfetch.com/mcp",
   },
