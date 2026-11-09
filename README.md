@@ -16,7 +16,7 @@ This **stdio MCP server** lists tools from `https://readfetch.com/mcp`, executes
   "mcpServers": {
     "readfetch": {
       "command": "npx",
-      "args": ["-y", "@readfetch/mcp-x402-proxy@0.1.15"],
+      "args": ["-y", "@readfetch/mcp-x402-proxy@0.1.17"],
       "env": {
         "EVM_PRIVATE_KEY": "0xYOUR_KEY"
       }
