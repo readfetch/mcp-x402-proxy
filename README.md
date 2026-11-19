@@ -16,7 +16,7 @@ This **stdio MCP server** lists tools from `https://readfetch.com/mcp`, executes
   "mcpServers": {
     "readfetch": {
       "command": "npx",
-      "args": ["-y", "@readfetch/mcp-x402-proxy@0.1.17"],
+      "args": ["-y", "@readfetch/mcp-x402-proxy@latest"],
       "env": {
         "EVM_PRIVATE_KEY": "0xYOUR_KEY"
       }
@@ -77,7 +77,7 @@ If the `@readfetch` org does not exist on [npmjs.com](https://www.npmjs.com/), c
 
 ## Default tool path
 
-1. `readfetch_probe` with `{ "url": "…" }` (free; may include `preview` ~400 chars when HTML, not a bot wall)
+1. `readfetch_probe` with `{ "url": "…" }` (free; returns the full extracted text for the first 3 probes per IP per day, a `preview` of ~400 chars after that)
 2. `readfetch_text` with the same `url`
 3. If probe reports `challenge: true`, use `readfetch_scrape` (then `readfetch_scrape_residential` if needed)
 
