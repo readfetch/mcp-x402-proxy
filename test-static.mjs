@@ -92,3 +92,24 @@ const smoke = readFileSync(new URL("./smoke-mcp.mjs", import.meta.url), "utf8");
 assert.match(smoke, /READFETCH_MAX_PAYMENT_USD/);
 
 console.log("test-static.mjs: ok");
+
+// No-wallet fallback: an installed proxy with no key answers a page-read tool from the free
+// probe instead of failing with an error about EVM_PRIVATE_KEY.
+import { shouldUseFreeProbe } from "./url-policy.mjs";
+
+assert.equal(shouldUseFreeProbe("readfetch_text", {}), true);
+assert.equal(shouldUseFreeProbe("readfetch_scrape", {}), true);
+assert.equal(shouldUseFreeProbe("readfetch_section", {}), true);
+assert.equal(shouldUseFreeProbe("readfetch_diff", {}), true);
+// Probe cannot stand in for these.
+assert.equal(shouldUseFreeProbe("readfetch_screenshot", {}), false);
+assert.equal(shouldUseFreeProbe("readfetch_pdf", {}), false);
+assert.equal(shouldUseFreeProbe("readfetch_batch", {}), false);
+assert.equal(shouldUseFreeProbe("readfetch_crawl", {}), false);
+assert.equal(shouldUseFreeProbe("readfetch_fetch", {}), false);
+// A configured key — either env name — means the paid route runs.
+assert.equal(shouldUseFreeProbe("readfetch_text", { EVM_PRIVATE_KEY: "ab" }), false);
+assert.equal(shouldUseFreeProbe("readfetch_text", { X402_BUYER_KEY: "ab" }), false);
+// Whitespace is not a configured key.
+assert.equal(shouldUseFreeProbe("readfetch_text", { EVM_PRIVATE_KEY: "  " }), true);
+console.log("test-static.mjs: free-probe fallback ok");

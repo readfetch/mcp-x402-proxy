@@ -32,6 +32,7 @@ import {
   endpointSpecForTool,
   restUrlForTool,
   sanitizeErrorMessage,
+  shouldUseFreeProbe,
   validateToolName,
 } from "./url-policy.mjs";
 
@@ -49,6 +50,12 @@ const DEFAULT_PAYTO = "0x26C2308aDC8fe5FFE6d4183588DD2DD22ed86071";
 const MISSING_KEY =
   "readfetch MCP: set EVM_PRIVATE_KEY (or X402_BUYER_KEY) in the MCP server env — a Base wallet with USDC. " +
   "The proxy signs x402 payments on your behalf when a tool call returns 402.";
+
+const FREE_PROBE_NOTE =
+  "No wallet configured, so this is the free probe for the same URL: full extracted text for " +
+  "the first 3 calls per IP per day, a ~400-character preview after that. It is not the paid " +
+  "route — no markdown structure, no per-call metadata, no receipt. Set EVM_PRIVATE_KEY (or " +
+  "X402_BUYER_KEY) to a funded Base USDC wallet to call the paid route.";
 const INSTRUCTIONS =
   "Start with readfetch_probe (free). Paid tools use a local signing proxy: add EVM_PRIVATE_KEY for a dedicated, funded Base USDC wallet. The proxy pays the REST 402 and retries automatically; do not point a standard MCP host at readfetch.com/mcp alone for paid tools.";
 
@@ -321,10 +328,56 @@ async function upstream(method, params) {
   return parsed.result;
 }
 
+/** The free read for a caller with no wallet: same URL, `/v1/probe`, no payment headers. */
+async function freeProbeFallback(origin, url) {
+  const probeUrl = `${origin}/v1/probe`;
+  const response = await fetchNoRedirect(probeUrl, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "user-agent": `readfetch-mcp-x402-proxy/${PACKAGE_VERSION}`,
+    },
+    redirect: "manual",
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    body: JSON.stringify({ url }),
+  });
+  assertNoRedirect(response, probeUrl);
+  const text = await readResponseTextLimited(response, MAX_UPSTREAM_BODY_BYTES);
+  let structured;
+  try {
+    structured = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `upstream returned non-JSON (HTTP ${response.status}, ${text.length} bytes)`,
+    );
+  }
+  return {
+    content: [
+      { type: "text", text: FREE_PROBE_NOTE },
+      { type: "text", text },
+    ],
+    structuredContent: structured,
+    isError: false,
+    _meta: { free_trial: true, wallet_configured: false },
+  };
+}
+
 async function upstreamRestTool(toolName, args) {
   resolveUpstreamContext();
   const spec = endpointSpecForTool(toolName);
   const origin = new URL(upstreamUrl).origin;
+
+  // Installed but not funded is the common state: ~1,900 downloads a week against zero
+  // settlements. Answering with an error about a private key tells that caller nothing about
+  // the product; the probe tells it everything except the extras it has not paid for.
+  if (!spec.free && shouldUseFreeProbe(toolName, process.env)) {
+    const url = args?.url;
+    if (typeof url === "string" && url.trim()) {
+      return await freeProbeFallback(origin, url);
+    }
+  }
+
   const restUrl = restUrlForTool(origin, toolName, args);
   const http = spec.free ? fetchNoRedirect : await ensurePaidFetch();
 

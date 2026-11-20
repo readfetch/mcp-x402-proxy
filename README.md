@@ -81,6 +81,15 @@ If the `@readfetch` org does not exist on [npmjs.com](https://www.npmjs.com/), c
 2. `readfetch_text` with the same `url`
 3. If probe reports `challenge: true`, use `readfetch_scrape` (then `readfetch_scrape_residential` if needed)
 
+## No wallet yet?
+
+`readfetch_text`, `readfetch_scrape`, `readfetch_section` and `readfetch_diff` **fall back to the free
+probe** when neither `EVM_PRIVATE_KEY` nor `X402_BUYER_KEY` is set. The result carries the same
+content plus a leading note and `_meta.free_trial: true`, so an installed-but-unfunded host still
+gets a page instead of an error about a private key. The fallback does not exist for
+`screenshot`, `pdf`, `batch`, `crawl` or `fetch` — a probe cannot produce those — and a *malformed*
+key still errors rather than silently downgrading.
+
 ## Feedback (integration issues)
 
 After a confusing 402, MCP result, or doc mismatch, call **`readfetch_feedback`** (free — no `EVM_PRIVATE_KEY`) with:

@@ -157,3 +157,24 @@ export function filterCatalogTools(tools) {
       TOOL_NAME_RE.test(tool.name),
   );
 }
+
+/** Tools whose whole job is reading one page. With no wallet configured, `/v1/probe` answers
+ *  the same read for free, which is more useful than an error about a private key. Tools that
+ *  return something a probe cannot — a screenshot, a PDF body, a crawl job — are excluded. */
+export const PROBE_FALLBACK_TOOLS = new Set([
+  "readfetch_text",
+  "readfetch_scrape",
+  "readfetch_section",
+  "readfetch_diff",
+]);
+
+/** True when this tool call should be answered by the free probe instead of a paid route.
+ *  A malformed key is not "no wallet": that caller gets the parse error, because it is a
+ *  mistake they can fix and a silent downgrade would hide it. */
+export function shouldUseFreeProbe(toolName, env = {}) {
+  if (!PROBE_FALLBACK_TOOLS.has(toolName)) {
+    return false;
+  }
+  const raw = (env.EVM_PRIVATE_KEY || "").trim() || (env.X402_BUYER_KEY || "").trim();
+  return raw === "";
+}
