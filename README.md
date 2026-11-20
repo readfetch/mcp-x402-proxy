@@ -98,4 +98,4 @@ Paid delivery disputes use **`POST /v1/claims`**, not feedback. Details: [readfe
 
 See also [readfetch integrations](https://readfetch.com/integrations) and [SKILL.md](https://readfetch.com/SKILL.md).
 
-**Directory:** Official MCP Registry `io.github.readfetch/mcp-x402-proxy` · Glama listing steps in [readfetch/readfetch `docs/GLAMA.md`](https://github.com/readfetch/readfetch/blob/main/docs/GLAMA.md) (operator).
+**Directory:** Official MCP Registry `com.readfetch/mcp-x402-proxy` · Glama listing steps in [readfetch/readfetch `docs/GLAMA.md`](https://github.com/readfetch/readfetch/blob/main/docs/GLAMA.md) (operator).
