@@ -3,16 +3,17 @@
   "name": "com.readfetch/mcp-x402-proxy",
   "title": "readfetch",
   "description": "Stdio MCP proxy: free probe, then x402-paid ReadFetch tools; for hosts that cannot sign x402.",
+  "websiteUrl": "https://readfetch.com",
   "repository": {
     "url": "https://github.com/readfetch/mcp-x402-proxy",
     "source": "github"
   },
-  "version": "0.1.21",
+  "version": "0.1.22",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@readfetch/mcp-x402-proxy",
-      "version": "0.1.21",
+      "version": "0.1.22",
       "transport": {
         "type": "stdio"
       },
@@ -46,6 +47,12 @@
           "isSecret": false
         }
       ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://readfetch.com/mcp"
     }
   ]
 }
