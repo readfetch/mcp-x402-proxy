@@ -108,3 +108,10 @@ Paid delivery disputes use **`POST /v1/claims`**, not feedback. Details: [readfe
 See also [readfetch integrations](https://readfetch.com/integrations) and [SKILL.md](https://readfetch.com/SKILL.md).
 
 **Directory:** Official MCP Registry `com.readfetch/mcp-x402-proxy` · Glama listing steps in [readfetch/readfetch `docs/GLAMA.md`](https://github.com/readfetch/readfetch/blob/main/docs/GLAMA.md) (operator).
+
+## Policies
+
+- Privacy policy — https://readfetch.com/privacy (what one call records, body caps, 30-day body / 400-day call retention, removal route)
+- Terms of service — https://readfetch.com/terms (the 402 quote is the contract, delivery-gated billing, no SLA, claim route)
+
+Both are required by the Claude and ChatGPT MCP directories; the Official Registry entry carries the same links in `/.well-known/mcp.json` and `service.json`.
